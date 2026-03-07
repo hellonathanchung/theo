@@ -16,19 +16,6 @@ type Screen = 'home' | 'history' | 'settings';
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('home');
 
-  const getScreenTitle = () => {
-    switch (currentScreen) {
-      case 'home':
-        return 'Track';
-      case 'history':
-        return 'History';
-      case 'settings':
-        return 'Settings';
-      default:
-        return 'Theo';
-    }
-  };
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>

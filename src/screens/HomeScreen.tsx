@@ -136,36 +136,38 @@ export const HomeScreen: React.FC = () => {
 
   return (
     <View style={[styles.container, { backgroundColor: getBackgroundColor() }]}>
-      <Text style={styles.title}>Theo</Text>
+      <View style={styles.content}>
+        <Text style={styles.title}>theo</Text>
 
-      <View style={styles.statusContainer}>
-        <Text style={styles.statusMessage}>{getStatusMessage()}</Text>
-      </View>
+        <View style={styles.statusContainer}>
+          <Text style={styles.statusMessage}>{getStatusMessage()}</Text>
+        </View>
 
-      {analysis && (
-        <View style={styles.statsContainer}>
-          <View style={styles.statBox}>
-            <Text style={styles.statLabel}>Avg Interval</Text>
-            <Text style={styles.statValue}>
-              {analysisService.formatInterval(analysis.averageInterval)}
-            </Text>
-          </View>
-
-          <View style={styles.statBox}>
-            <Text style={styles.statLabel}>Total Tracked</Text>
-            <Text style={styles.statValue}>{contractions.length}</Text>
-          </View>
-
-          {analysis.lastContraction && (
+        {analysis && (
+          <View style={styles.statsContainer}>
             <View style={styles.statBox}>
-              <Text style={styles.statLabel}>Last Duration</Text>
+              <Text style={styles.statLabel}>Avg Interval</Text>
               <Text style={styles.statValue}>
-                {analysisService.formatDuration(analysis.lastContraction.duration)}
+                {analysisService.formatInterval(analysis.averageInterval)}
               </Text>
             </View>
-          )}
-        </View>
-      )}
+
+            <View style={styles.statBox}>
+              <Text style={styles.statLabel}>Total Tracked</Text>
+              <Text style={styles.statValue}>{contractions.length}</Text>
+            </View>
+
+            {analysis.lastContraction && (
+              <View style={styles.statBox}>
+                <Text style={styles.statLabel}>Last Duration</Text>
+                <Text style={styles.statValue}>
+                  {analysisService.formatDuration(analysis.lastContraction.duration)}
+                </Text>
+              </View>
+            )}
+          </View>
+        )}
+      </View>
 
       <Animated.View style={[styles.buttonContainer, { opacity: fadeAnim }]}>
         {!isTracking ? (
@@ -194,9 +196,14 @@ export const HomeScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingHorizontal: theme.spacing.lg,
+    paddingBottom: theme.spacing.lg,
+  },
+  content: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: theme.spacing.lg,
+    paddingTop: theme.spacing.lg,
   },
   title: {
     ...theme.typography.large,
