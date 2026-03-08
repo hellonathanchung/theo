@@ -1,125 +1,88 @@
-import React, { useState } from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-  Text
-} from 'react-native';
-import { HomeScreen } from './screens/HomeScreen';
-import { HistoryScreen } from './screens/HistoryScreen';
-import { SettingsScreen } from './screens/SettingsScreen';
-import { theme } from './styles/theme';
+import { useState, useEffect } from 'react';
+import './index.css';
+import { useContractions } from './hooks/useContractions.ts';
+import { TimerScreen } from './components/TimerScreen.tsx';
+import { HistoryScreen } from './components/HistoryScreen.tsx';
+import { SettingsScreen } from './components/SettingsScreen.tsx';
+import { AlertBanner } from './components/AlertBanner.tsx';
 
-type Screen = 'home' | 'history' | 'settings';
+type Tab = 'timer' | 'history' | 'settings';
 
-export default function App() {
-  const [currentScreen, setCurrentScreen] = useState<Screen>('home');
+export function App() {
+  const [tab, setTab] = useState<Tab>('timer');
+  const app = useContractions();
+
+  // Request notification permission on first load
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }, []);
+
+  const urgency = app.getUrgencyState();
+  const bgColor =
+    urgency === 'active'
+      ? 'var(--soft-peach)'
+      : urgency === 'approaching'
+        ? 'var(--soft-coral)'
+        : 'var(--cream)';
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        {currentScreen === 'home' && <HomeScreen />}
-        {currentScreen === 'history' && <HistoryScreen />}
-        {currentScreen === 'settings' && <SettingsScreen />}
-      </View>
+    <div
+      style={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        background: bgColor,
+        transition: 'background 1.5s ease',
+      }}
+    >
+      {app.alertMessage && (
+        <AlertBanner message={app.alertMessage} onDismiss={app.dismissAlert} />
+      )}
 
-      <View style={styles.navigation}>
-        <TouchableOpacity
-          style={[
-            styles.navButton,
-            currentScreen === 'home' && styles.navButtonActive
-          ]}
-          onPress={() => setCurrentScreen('home')}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.navIcon}>📍</Text>
-          <Text
-            style={[
-              styles.navButtonText,
-              currentScreen === 'home' && styles.navButtonTextActive
-            ]}
-          >
-            Track
-          </Text>
-        </TouchableOpacity>
+      <main style={{ flex: 1, overflow: 'auto' }}>
+        {tab === 'timer' && <TimerScreen app={app} />}
+        {tab === 'history' && <HistoryScreen app={app} />}
+        {tab === 'settings' && <SettingsScreen app={app} />}
+      </main>
 
-        <TouchableOpacity
-          style={[
-            styles.navButton,
-            currentScreen === 'history' && styles.navButtonActive
-          ]}
-          onPress={() => setCurrentScreen('history')}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.navIcon}>📋</Text>
-          <Text
-            style={[
-              styles.navButtonText,
-              currentScreen === 'history' && styles.navButtonTextActive
-            ]}
+      <nav style={navStyle} className="safe-bottom">
+        {(['timer', 'history', 'settings'] as Tab[]).map((t) => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            style={{
+              ...navBtnStyle,
+              color: tab === t ? 'var(--terracotta)' : 'var(--text-muted)',
+              borderTop: tab === t ? '2px solid var(--terracotta)' : '2px solid transparent',
+            }}
           >
-            History
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.navButton,
-            currentScreen === 'settings' && styles.navButtonActive
-          ]}
-          onPress={() => setCurrentScreen('settings')}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.navIcon}>⚙️</Text>
-          <Text
-            style={[
-              styles.navButtonText,
-              currentScreen === 'settings' && styles.navButtonTextActive
-            ]}
-          >
-            Settings
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+            <span style={{ fontSize: 22 }}>
+              {t === 'timer' ? '⏱' : t === 'history' ? '📋' : '⚙️'}
+            </span>
+            <span style={{ fontSize: 11, marginTop: 2, textTransform: 'capitalize' }}>
+              {t === 'timer' ? 'Track' : t}
+            </span>
+          </button>
+        ))}
+      </nav>
+    </div>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  content: {
-    flex: 1,
-  },
-  navigation: {
-    flexDirection: 'row',
-    borderTopWidth: 1,
-    borderTopColor: theme.colors.border,
-    backgroundColor: theme.colors.primary,
-  },
-  navButton: {
-    flex: 1,
-    paddingVertical: theme.spacing.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  navButtonActive: {
-    borderBottomWidth: 3,
-    borderBottomColor: theme.colors.accent,
-  },
-  navIcon: {
-    fontSize: 24,
-    marginBottom: theme.spacing.xs,
-  },
-  navButtonText: {
-    ...theme.typography.small,
-    color: theme.colors.text,
-  },
-  navButtonTextActive: {
-    color: theme.colors.accent,
-    fontWeight: '600',
-  },
-});
+const navStyle: React.CSSProperties = {
+  display: 'flex',
+  borderTop: '1px solid var(--warm-beige)',
+  background: 'var(--cream)',
+  flexShrink: 0,
+};
+
+const navBtnStyle: React.CSSProperties = {
+  flex: 1,
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  padding: '8px 0 6px',
+  transition: 'color 0.2s',
+};

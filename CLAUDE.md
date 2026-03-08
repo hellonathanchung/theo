@@ -1,113 +1,78 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code when working with code in this repository.
 
 ## Project
 
-**theo** is a React Native Expo contractions tracking app for pregnancy labor monitoring. Built for local phone storage and iOS/Android app store deployment—free and ad-free.
+**Theo** is a Progressive Web App (PWA) contraction timer for pregnancy labor monitoring. Built with Vite + React + TypeScript. Free, ad-free, fully offline, data stored locally in the browser.
 
 ## Build & Development
 
 ```bash
-# Install dependencies
-npm install
-
-# Start Expo dev server (choose platform when prompted)
-npm start
-
-# Run on iOS simulator
-npm run ios
-
-# Run on Android emulator
-npm run android
-
-# Build for app store (requires EAS account setup)
-npm run build-ios
-npm run build-android
+npm install       # Install dependencies
+npm run dev       # Start dev server on port 3000
+npm run build     # TypeScript check + production build to dist/
+npm run preview   # Preview production build locally
 ```
+
+## Deployment
+
+Deployed to GitHub Pages via GitHub Actions. Push to `main` or `feat/nate/beginning` triggers auto-deploy.
+
+Live at: `https://hellonathanchung.github.io/theo/`
 
 ## Project Structure
 
 ```
 theo/
+├── index.html              # Entry HTML with PWA meta tags
+├── vite.config.ts          # Vite config (base: /theo/ for GH Pages)
+├── public/
+│   ├── manifest.json       # PWA manifest
+│   ├── sw.js               # Service worker (offline support)
+│   └── icon-*.png          # App icons
 ├── src/
-│   ├── App.tsx                 # Main app entry with navigation
-│   ├── types/
-│   │   └── index.ts            # TypeScript interfaces
-│   ├── styles/
-│   │   └── theme.ts            # Soothing color theme & spacing
-│   ├── services/
-│   │   ├── storageService.ts   # AsyncStorage for local persistence
-│   │   ├── notificationService.ts # Expo notifications & alerts
-│   │   └── analysisService.ts  # Contraction interval analysis
-│   └── screens/
-│       ├── HomeScreen.tsx      # Track contractions
-│       ├── HistoryScreen.tsx   # View all contractions
-│       └── SettingsScreen.tsx  # Settings & contact info
-├── index.js                    # Entry point
-├── package.json                # Dependencies
-├── app.json                    # Expo configuration
-└── tsconfig.json               # TypeScript config
+│   ├── main.tsx            # React entry point + SW registration
+│   ├── App.tsx             # Root component with tab navigation
+│   ├── index.css           # Global styles + CSS variables
+│   ├── types.ts            # TypeScript interfaces
+│   ├── components/
+│   │   ├── TimerScreen.tsx     # Main timer with start/stop button
+│   │   ├── HistoryScreen.tsx   # Full contraction list + stats
+│   │   ├── SettingsScreen.tsx  # Presets (5-1-1, 4-1-1) + custom thresholds
+│   │   └── AlertBanner.tsx     # Slide-down alert when thresholds met
+│   ├── hooks/
+│   │   ├── useContractions.ts  # Core state management
+│   │   └── useTimer.ts        # Timestamp-based timer logic
+│   └── utils/
+│       ├── alerts.ts           # Pure function: evaluate thresholds
+│       ├── format.ts           # Time formatting helpers
+│       └── storage.ts          # localStorage persistence
+└── .github/workflows/
+    └── deploy.yml          # GitHub Pages deploy action
 ```
 
 ## Features
 
-- ✅ **Track Contractions** - Start/end timing with pulsing visual feedback
-- ✅ **Local Storage** - All data stored on phone using AsyncStorage
-- ✅ **Real-time Analysis** - Calculates intervals between contractions
-- ✅ **Smart Alerts** - Notifications when contractions meet 4-1-1 rule (< 5 min apart)
-- ✅ **Soothing UI** - Calm color transitions (lavender → orange → coral) based on urgency
-- ✅ **History View** - See all contractions with intervals and delete individual entries
-- ✅ **Settings** - Save birthing center, doctor, and partner phone numbers
-- ✅ **Intuitive Navigation** - 3-tab bottom navigation (Track, History, Settings)
+- **Track Contractions** — Start/end timing with color-shifting visual feedback
+- **Local Storage** — All data in localStorage, no accounts, no backend
+- **Alert Presets** — 5-1-1 and 4-1-1 rules, plus fully custom thresholds
+- **Smooth Transitions** — Background shifts cream → green as urgency increases
+- **Notifications** — Web push when thresholds are met
+- **PWA** — Installable to home screen, works offline
+- **Free & Ad-Free** — No cost, no tracking, no ads
 
-## Color Theme (Calm & Soothing)
+## Color Theme (Pastel Green)
 
-- **Primary**: Soft lavender (#E8D5F2)
-- **Secondary**: Warm cream (#F5E6D3)
-- **Accent**: Muted purple (#D4A5D4)
-- **Success**: Soft green (#A8D8A8)
-- **Warning**: Soft orange (#F4B183) - contractions quickening
-- **Danger**: Soft coral (#E89B9B) - time to go
-- **Background**: Off-white (#FEFDFB)
-
-## Contraction Alerts
-
-- **Calm** - No urgent contractions
-- **Monitor** - Contractions < 15 min apart
-- **Quickening** - Contractions < 10 min apart (⚡ alert)
-- **Go** - Contractions < 5 min apart (🚗 alert to head to birthing center)
-
-## Tech Stack
-
-- React Native 0.73.0
-- Expo SDK 50.0
-- TypeScript 5.3
-- AsyncStorage for local persistence
-- Expo Notifications for push alerts
-- React Native with Animated for smooth UI transitions
-
-## App Store Deployment
-
-### Setup EAS Account
-```bash
-npm install -g eas-cli
-eas login
-eas build:configure
-```
-
-### Build & Submit
-```bash
-# Build for iOS App Store
-eas build --platform ios --auto-submit
-
-# Build for Google Play Store
-eas build --platform android --auto-submit
-```
+- **Cream**: #F5FAF5 (background)
+- **Beige**: #E8F0E8 (alternating rows)
+- **Soft Green**: #C8E6C9 (active contraction bg)
+- **Medium Green**: #A5D6A7 (approaching alert bg)
+- **Green**: #81C784 (button resting)
+- **Deep Green**: #4CAF50 (accent, active tab)
 
 ## Notes
 
-- App is designed for portrait mode only (pregnancy labor monitoring)
-- Contractions are stored permanently on device until manually cleared
-- Alert threshold configurable in Settings (default 5 minutes)
+- Portrait mode only (pregnancy labor monitoring)
+- Contractions stored until manually cleared
 - Free and ad-free by design
