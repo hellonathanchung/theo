@@ -32,6 +32,7 @@ export function loadSettings(): Settings {
         };
   } catch {
     return {
+      preset: '5-1-1' as const,
       frequencyMinutes: 5,
       durationSeconds: 60,
       timeWindowMinutes: 60,
