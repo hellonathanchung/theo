@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "theo-dev",
-      "runtimeExecutable": "wsl.exe",
-      "runtimeArgs": ["-d", "Ubuntu", "--cd", "/mnt/c/Users/Nathan/Development/Theo", "--", "npm", "run", "dev"],
+      "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe",
+      "runtimeArgs": ["node_modules/vite/bin/vite.js", "--host", "--port", "3000"],
       "port": 3000
     }
   ]

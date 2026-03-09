@@ -111,7 +111,7 @@ export function App() {
         <div key={tab} style={{ height: '100%', animation: 'fadeIn 0.25s ease' }}>
           {tab === 'timer' && <TimerScreen app={app} />}
           {tab === 'history' && <HistoryScreen app={app} />}
-          {tab === 'relax' && <RelaxScreen />}
+          {tab === 'relax' && <RelaxScreen app={app} />}
           {tab === 'settings' && <SettingsScreen app={app} />}
         </div>
       </main>
