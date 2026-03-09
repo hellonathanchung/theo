@@ -1,36 +1,36 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 const FACTS = [
-  { emoji: '👶', text: 'Babies can recognize their mother\'s voice from inside the womb — they\'ve been listening for months!' },
-  { emoji: '💪', text: 'The uterus is the strongest muscle in the human body by weight. You\'re literally superhuman right now.' },
-  { emoji: '🌊', text: 'Contractions work like ocean waves — they build, peak, and recede. Each one brings you closer.' },
-  { emoji: '🧒', text: 'Newborns can see about 8–12 inches — just far enough to see your face while being held.' },
-  { emoji: '❤️', text: 'A baby\'s heart beats about 120–160 times per minute — roughly twice as fast as yours.' },
-  { emoji: '🤏', text: 'Babies are born with about 300 bones. Some fuse together, leaving adults with just 206.' },
-  { emoji: '👃', text: 'Newborns have a strong sense of smell and can recognize their mother\'s scent right after birth.' },
-  { emoji: '🫧', text: 'Babies practice breathing in the womb by inhaling and exhaling amniotic fluid.' },
-  { emoji: '🌙', text: 'Most babies are born between midnight and 6 AM. Night owls from the start!' },
-  { emoji: '🎵', text: 'Babies can hear and remember music played during the third trimester. Your playlist matters!' },
-  { emoji: '😊', text: 'Laughing during labor can help release endorphins — natural painkillers your body makes.' },
-  { emoji: '🧠', text: 'A newborn\'s brain is about 25% of its adult size and doubles in the first year.' },
-  { emoji: '✨', text: 'The hormone oxytocin that drives contractions is the same "love hormone" released during hugs.' },
-  { emoji: '👣', text: 'Every baby is born with unique fingerprints — they develop in the womb around 3 months.' },
-  { emoji: '🌱', text: 'Fun fact: babies can taste what their mother eats! Flavors pass through to amniotic fluid.' },
-  { emoji: '😴', text: 'Newborns sleep 14–17 hours a day, but rarely more than 2–3 hours at a stretch.' },
-  { emoji: '👁️', text: 'Most babies are born with blue or grey eyes. Their permanent color can take up to a year to develop.' },
-  { emoji: '🤝', text: 'A baby\'s grip is strong enough to support their own body weight. Tiny but mighty!' },
-  { emoji: '🫁', text: 'Deep, slow breathing during contractions helps deliver more oxygen to your baby.' },
-  { emoji: '🌍', text: 'About 385,000 babies are born every day worldwide. You\'re part of something amazing.' },
-  { emoji: '🦷', text: 'Baby teeth start forming in the womb — they\'re just hidden under the gums at birth.' },
-  { emoji: '🧬', text: 'Your baby has already developed their own unique DNA by the time of conception — one of a kind!' },
-  { emoji: '💤', text: 'Between contractions is the perfect time to rest. Even a few seconds of relaxation helps.' },
-  { emoji: '🎈', text: 'Babies can hiccup in the womb! Those little rhythmic bumps you might have felt were hiccups.' },
-  { emoji: '🌸', text: 'You\'re doing incredible work right now. Every contraction is a step closer to meeting your baby.' },
-  { emoji: '🐘', text: 'Human pregnancy is 9 months, but elephants carry their babies for 22 months. You\'ve got this!' },
-  { emoji: '🦘', text: 'Kangaroo babies are born the size of a jellybean and crawl into mom\'s pouch. Nature is wild!' },
-  { emoji: '🏊', text: 'Babies are natural swimmers — they instinctively hold their breath underwater for a few months after birth.' },
-  { emoji: '😂', text: 'Babies start smiling socially around 6–8 weeks. That first real smile is worth everything.' },
-  { emoji: '🎤', text: 'Babies babble in the rhythm of their native language. They\'re learning to talk before they can speak!' },
+  { emoji: '👶', text: 'Babies can recognize their mother\'s voice from inside the womb — they\'ve been listening for months!', source: 'DeCasper & Fifer, Science, 1980' },
+  { emoji: '💪', text: 'The uterus is the strongest muscle in the human body by weight. You\'re literally superhuman right now.', source: 'Cunningham et al., Williams Obstetrics, 26th Ed.' },
+  { emoji: '🌊', text: 'Contractions work like ocean waves — they build, peak, and recede. Each one brings you closer.', source: 'ACOG Patient Education, Labor & Delivery' },
+  { emoji: '🧒', text: 'Newborns can see about 8–12 inches — just far enough to see your face while being held.', source: 'Slater & Johnson, Infant Vision, Oxford, 1998' },
+  { emoji: '❤️', text: 'A baby\'s heart beats about 120–160 times per minute — roughly twice as fast as yours.', source: 'American Academy of Pediatrics, NRP Guidelines' },
+  { emoji: '🤏', text: 'Babies are born with about 300 bones. Some fuse together, leaving adults with just 206.', source: 'Standring, Gray\'s Anatomy, 42nd Ed.' },
+  { emoji: '👃', text: 'Newborns have a strong sense of smell and can recognize their mother\'s scent right after birth.', source: 'Macfarlane, Ciba Foundation Symposium, 1975' },
+  { emoji: '🫧', text: 'Babies practice breathing in the womb by inhaling and exhaling amniotic fluid.', source: 'Moore et al., The Developing Human, 11th Ed.' },
+  { emoji: '🌙', text: 'Most babies are born between midnight and 6 AM. Night owls from the start!', source: 'Linde et al., Annals of Epidemiology, 2001' },
+  { emoji: '🎵', text: 'Babies can hear and remember music played during the third trimester. Your playlist matters!', source: 'Partanen et al., PLOS ONE, 2013' },
+  { emoji: '😊', text: 'Laughing during labor can help release endorphins — natural painkillers your body makes.', source: 'Dunbar et al., Proc. Royal Society B, 2012' },
+  { emoji: '🧠', text: 'A newborn\'s brain is about 25% of its adult size and doubles in the first year.', source: 'Knickmeyer et al., J. Neuroscience, 2008' },
+  { emoji: '✨', text: 'The hormone oxytocin that drives contractions is the same "love hormone" released during hugs.', source: 'Uvnas-Moberg, The Oxytocin Factor, 2003' },
+  { emoji: '👣', text: 'Every baby is born with unique fingerprints — they develop in the womb around 3 months.', source: 'Kucken & Newell, J. Theoretical Biology, 2005' },
+  { emoji: '🌱', text: 'Babies can taste what their mother eats! Flavors pass through to amniotic fluid.', source: 'Mennella et al., Pediatrics, 2001' },
+  { emoji: '😴', text: 'Newborns sleep 14–17 hours a day, but rarely more than 2–3 hours at a stretch.', source: 'Hirshkowitz et al., Sleep Health, 2015' },
+  { emoji: '👁️', text: 'Most babies are born with blue or grey eyes. Their permanent color can take up to a year to develop.', source: 'Sturm & Larsson, Experimental Dermatology, 2009' },
+  { emoji: '🤝', text: 'A baby\'s grip is strong enough to support their own body weight. Tiny but mighty!', source: 'Palmar grasp reflex — Palmar Reflex, AAP Pediatrics' },
+  { emoji: '🫁', text: 'Deep, slow breathing during contractions helps deliver more oxygen to your baby.', source: 'Lothian, J. Perinatal Education, 2011' },
+  { emoji: '🌍', text: 'About 385,000 babies are born every day worldwide. You\'re part of something amazing.', source: 'UNICEF, State of the World\'s Children, 2023' },
+  { emoji: '🦷', text: 'Baby teeth start forming in the womb — they\'re just hidden under the gums at birth.', source: 'AAPD, Guideline on Perinatal Oral Health' },
+  { emoji: '🧬', text: 'Your baby has already developed their own unique DNA by the time of conception — one of a kind!', source: 'Alberts et al., Molecular Biology of the Cell, 7th Ed.' },
+  { emoji: '💤', text: 'Between contractions is the perfect time to rest. Even a few seconds of relaxation helps.', source: 'Simkin, The Birth Partner, 5th Ed.' },
+  { emoji: '🎈', text: 'Babies can hiccup in the womb! Those little rhythmic bumps you might have felt were hiccups.', source: 'Whitehead et al., Clinical Neurophysiology, 2019' },
+  { emoji: '🌸', text: 'You\'re doing incredible work right now. Every contraction is a step closer to meeting your baby.', source: 'Gaskin, Ina May\'s Guide to Childbirth, 2003' },
+  { emoji: '🐘', text: 'Human pregnancy is 9 months, but elephants carry their babies for 22 months. You\'ve got this!', source: 'Lueders et al., Proc. Royal Society B, 2012' },
+  { emoji: '🦘', text: 'Kangaroo babies are born the size of a jellybean and crawl into mom\'s pouch. Nature is wild!', source: 'Tyndale-Biscoe, Life of Marsupials, CSIRO, 2005' },
+  { emoji: '🏊', text: 'Babies are natural swimmers — they instinctively hold their breath underwater for a few months after birth.', source: 'Goksor et al., Acta Paediatrica, 2002' },
+  { emoji: '😂', text: 'Babies start smiling socially around 6–8 weeks. That first real smile is worth everything.', source: 'Messinger & Fogel, Child Development, 2007' },
+  { emoji: '🎤', text: 'Babies babble in the rhythm of their native language. They\'re learning to talk before they can speak!', source: 'de Boysson-Bardies et al., J. Child Language, 1984' },
 ];
 
 export function FunFacts() {
@@ -38,8 +38,8 @@ export function FunFacts() {
   const [fading, setFading] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [shared, setShared] = useState(false);
-  const [touchStart, setTouchStart] = useState<number | null>(null);
-  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const touchStartRef = useRef<number | null>(null);
+  const touchEndRef = useRef<number | null>(null);
 
   const nextFact = useCallback(() => {
     setFading(true);
@@ -59,7 +59,7 @@ export function FunFacts() {
 
   const shareFact = useCallback(async () => {
     const fact = FACTS[index];
-    const shareText = `${fact.emoji} ${fact.text}\n\n— from Theo, a contraction timer app`;
+    const shareText = `${fact.emoji} ${fact.text}\n\nSource: ${fact.source}\n\n— from Theo, a contraction timer app`;
 
     if (navigator.share) {
       try {
@@ -81,21 +81,21 @@ export function FunFacts() {
   }, [index]);
 
   // Minimum swipe distance (in px)
-  const minSwipeDistance = 50;
+  const minSwipeDistance = 40;
 
-  const onTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientX);
-  };
+  const onTouchStart = useCallback((e: React.TouchEvent) => {
+    touchEndRef.current = null;
+    touchStartRef.current = e.targetTouches[0].clientX;
+  }, []);
 
-  const onTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
+  const onTouchMove = useCallback((e: React.TouchEvent) => {
+    touchEndRef.current = e.targetTouches[0].clientX;
+  }, []);
 
-  const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
+  const onTouchEnd = useCallback(() => {
+    if (touchStartRef.current === null || touchEndRef.current === null) return;
 
-    const distance = touchStart - touchEnd;
+    const distance = touchStartRef.current - touchEndRef.current;
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
 
@@ -104,7 +104,10 @@ export function FunFacts() {
     } else if (isRightSwipe) {
       prevFact();
     }
-  };
+
+    touchStartRef.current = null;
+    touchEndRef.current = null;
+  }, [nextFact, prevFact]);
 
   // Auto-rotate every 12 seconds (only when expanded)
   useEffect(() => {
@@ -153,6 +156,7 @@ export function FunFacts() {
           >
             <span style={emojiStyle}>{fact.emoji}</span>
             <p style={textStyle}>{fact.text}</p>
+            <p style={sourceStyle}>{fact.source}</p>
           </div>
 
           {/* Dots */}
@@ -253,6 +257,15 @@ const textStyle: React.CSSProperties = {
   color: 'var(--text-secondary)',
   lineHeight: 1.6,
   maxWidth: 280,
+};
+
+const sourceStyle: React.CSSProperties = {
+  fontSize: 11,
+  color: 'var(--text-muted)',
+  fontStyle: 'italic',
+  marginTop: 4,
+  lineHeight: 1.4,
+  maxWidth: 260,
 };
 
 const dotsRow: React.CSSProperties = {

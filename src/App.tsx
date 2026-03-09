@@ -7,6 +7,7 @@ import { SettingsScreen } from './components/SettingsScreen.tsx';
 import { RelaxScreen } from './components/RelaxScreen.tsx';
 import { AlertBanner } from './components/AlertBanner.tsx';
 import { Onboarding } from './components/Onboarding.tsx';
+import { BackgroundLeaves } from './components/BackgroundLeaves.tsx';
 import { loadOnboardingComplete, saveOnboardingComplete } from './utils/storage.ts';
 import type { Preset } from './types.ts';
 
@@ -73,6 +74,8 @@ export function App() {
         transition: 'background 1.5s ease',
       }}
     >
+      <BackgroundLeaves />
+
       {app.alertMessage && (
         <AlertBanner message={app.alertMessage} onDismiss={app.dismissAlert} />
       )}
