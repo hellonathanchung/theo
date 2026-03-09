@@ -1,18 +1,38 @@
+import { useState } from 'react';
 import type { Preset } from '../types.ts';
 import type { useContractions } from '../hooks/useContractions.ts';
+import { DisclaimerModal } from './DisclaimerModal.tsx';
 
 interface Props {
   app: ReturnType<typeof useContractions>;
 }
 
-const PRESETS: { id: Preset; label: string; desc: string; freq: number; dur: number; window: number }[] = [
-  { id: '5-1-1', label: '5-1-1', desc: '5 min apart, 1 min long, 1 hour', freq: 5, dur: 60, window: 60 },
-  { id: '4-1-1', label: '4-1-1', desc: '4 min apart, 1 min long, 1 hour', freq: 4, dur: 60, window: 60 },
-  { id: 'custom', label: 'Custom', desc: 'Set your own thresholds', freq: 0, dur: 0, window: 0 },
+const PRESETS: { id: Preset; label: string; shortDesc: string; longDesc: string; freq: number; dur: number; window: number }[] = [
+  {
+    id: '5-1-1', label: '5-1-1', shortDesc: '5m / 1m / 1hr',
+    longDesc: 'Contractions 5 minutes apart, lasting 1 minute, for 1 hour. Most common guideline for first-time parents.',
+    freq: 5, dur: 60, window: 60,
+  },
+  {
+    id: '4-1-1', label: '4-1-1', shortDesc: '4m / 1m / 1hr',
+    longDesc: 'Contractions 4 minutes apart, lasting 1 minute, for 1 hour. Often recommended for second+ pregnancies.',
+    freq: 4, dur: 60, window: 60,
+  },
+  {
+    id: '3-1-1', label: '3-1-1', shortDesc: '3m / 1m / 1hr',
+    longDesc: 'Contractions 3 minutes apart, lasting 1 minute, for 1 hour. Used when your healthcare provider advises closer monitoring.',
+    freq: 3, dur: 60, window: 60,
+  },
+  {
+    id: 'custom', label: 'Custom', shortDesc: 'Your rules',
+    longDesc: 'Adjust each threshold below to match your care provider\'s guidance.',
+    freq: 0, dur: 0, window: 0,
+  },
 ];
 
 export function SettingsScreen({ app }: Props) {
   const { settings, updateSettings } = app;
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
 
   const selectPreset = (p: typeof PRESETS[number]) => {
     if (p.id === 'custom') {
@@ -27,13 +47,15 @@ export function SettingsScreen({ app }: Props) {
     }
   };
 
+  const activePreset = PRESETS.find((p) => p.id === settings.preset);
+
   return (
     <div style={{ padding: '20px 0' }}>
       <h2 style={titleStyle}>Settings</h2>
 
-      {/* Preset picker */}
+      {/* Preset picker — 2x2 grid */}
       <div style={sectionLabel}>ALERT RULE</div>
-      <div style={presetRow}>
+      <div style={presetGrid}>
         {PRESETS.map((p) => (
           <button
             key={p.id}
@@ -46,23 +68,15 @@ export function SettingsScreen({ app }: Props) {
           >
             <span style={{ fontSize: 15, fontWeight: 600 }}>{p.label}</span>
             <span style={{ fontSize: 10, marginTop: 2, opacity: 0.8 }}>
-              {p.id === 'custom' ? 'Your rules' : `${p.freq}m / ${p.dur / 60}m / ${p.window}m`}
+              {p.shortDesc}
             </span>
           </button>
         ))}
       </div>
 
       {/* Explanation of selected preset */}
-      <div style={presetDesc}>
-        {settings.preset === '5-1-1' && (
-          <>Contractions <strong>5 minutes apart</strong>, lasting <strong>1 minute</strong>, for <strong>1 hour</strong>. Most common guideline from OBs.</>
-        )}
-        {settings.preset === '4-1-1' && (
-          <>Contractions <strong>4 minutes apart</strong>, lasting <strong>1 minute</strong>, for <strong>1 hour</strong>. More conservative — used by some providers.</>
-        )}
-        {settings.preset === 'custom' && (
-          <>Adjust each threshold below to match your care provider's guidance.</>
-        )}
+      <div key={settings.preset} style={{ ...presetDesc, animation: 'fadeIn 0.3s ease' }}>
+        {activePreset?.longDesc}
       </div>
 
       {/* Custom thresholds — only editable in custom mode */}
@@ -120,13 +134,47 @@ export function SettingsScreen({ app }: Props) {
         />
       </SettingRow>
 
+      <SettingRow label="Track intensity" desc="Note mild, moderate, or strong after each contraction">
+        <Toggle
+          checked={settings.intensityEnabled}
+          onChange={(v) => updateSettings({ intensityEnabled: v })}
+        />
+      </SettingRow>
+
+      {/* Support */}
+      <div style={{ ...sectionLabel, marginTop: 24 }}>SUPPORT</div>
+      <div style={supportSection}>
+        <div style={{ fontSize: 15, color: 'var(--text-primary)', marginBottom: 4 }}>
+          Support Theo
+        </div>
+        <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 12, lineHeight: 1.5 }}>
+          Theo is free and ad-free. If it helped during your journey, consider supporting us.
+        </div>
+        <a
+          href="https://venmo.com/hellonathanchung"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={donateBtn}
+        >
+          Support on Venmo
+        </a>
+      </div>
+
       {/* Disclaimer */}
       <div style={disclaimer}>
         Theo is a timing tool, not medical advice.<br />
-        Always consult your care provider.
+        Always consult your care provider.<br />
+        <button
+          onClick={() => setShowDisclaimer(true)}
+          style={disclaimerLink}
+        >
+          Full Disclaimer
+        </button>
       </div>
 
-      <div style={version}>Theo v1.0.0</div>
+      <div style={version}>Theo v1.1.0</div>
+
+      {showDisclaimer && <DisclaimerModal onClose={() => setShowDisclaimer(false)} />}
     </div>
   );
 }
@@ -220,14 +268,14 @@ const sectionLabel: React.CSSProperties = {
   padding: '12px 20px 4px',
 };
 
-const presetRow: React.CSSProperties = {
-  display: 'flex',
+const presetGrid: React.CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr',
   gap: 8,
   padding: '8px 20px',
 };
 
 const presetBtn: React.CSSProperties = {
-  flex: 1,
   padding: '12px 8px',
   borderRadius: 12,
   display: 'flex',
@@ -264,12 +312,36 @@ const stepBtn: React.CSSProperties = {
   justifyContent: 'center',
 };
 
+const supportSection: React.CSSProperties = {
+  padding: '12px 20px',
+};
+
+const donateBtn: React.CSSProperties = {
+  display: 'inline-block',
+  padding: '10px 24px',
+  background: 'var(--warm-beige)',
+  borderRadius: 12,
+  fontSize: 14,
+  fontWeight: 500,
+  color: 'var(--terracotta)',
+  textDecoration: 'none',
+  transition: 'background 0.2s',
+};
+
 const disclaimer: React.CSSProperties = {
   textAlign: 'center',
   fontSize: 12,
   color: 'var(--text-muted)',
   padding: '32px 20px 8px',
   lineHeight: 1.6,
+};
+
+const disclaimerLink: React.CSSProperties = {
+  color: 'var(--terracotta)',
+  textDecoration: 'underline',
+  fontSize: 12,
+  marginTop: 4,
+  display: 'inline-block',
 };
 
 const version: React.CSSProperties = {
