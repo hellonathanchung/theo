@@ -193,7 +193,17 @@ export function BubbleGame() {
         <span style={titleLabel}>BUBBLE POP</span>
         <div style={scoresRow}>
           <span style={scoreLabel}>{displayScore} popped</span>
-          <span style={highLabel}>HI {highScore}</span>
+          <button
+            onClick={() => {
+              if (highScore > 0 && confirm('Reset high score?')) {
+                localStorage.removeItem('theo_bubble_high');
+                setHighScore(0);
+              }
+            }}
+            style={highBtn}
+          >
+            HI {highScore}
+          </button>
         </div>
       </div>
       <canvas
@@ -240,9 +250,14 @@ const scoreLabel: React.CSSProperties = {
   color: 'var(--text-primary)',
 };
 
-const highLabel: React.CSSProperties = {
+const highBtn: React.CSSProperties = {
   fontSize: 13,
   color: 'var(--text-muted)',
+  background: 'none',
+  border: 'none',
+  cursor: 'pointer',
+  padding: '2px 4px',
+  borderRadius: 4,
 };
 
 const canvasStyle: React.CSSProperties = {

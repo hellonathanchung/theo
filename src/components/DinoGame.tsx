@@ -363,7 +363,18 @@ export function DinoGame() {
         <span style={titleLabel}>SPROUT JUMP</span>
         <div style={scoresRow}>
           <span style={scoreLabel}>{String(displayScore).padStart(4, '0')}</span>
-          <span style={highLabel}>HI {String(displayHigh).padStart(4, '0')}</span>
+          <button
+            onClick={() => {
+              if (displayHigh > 0 && confirm('Reset high score?')) {
+                localStorage.removeItem('theo_dino_high');
+                stateRef.current.highScore = 0;
+                setDisplayHigh(0);
+              }
+            }}
+            style={highBtn}
+          >
+            HI {String(displayHigh).padStart(4, '0')}
+          </button>
         </div>
       </div>
       <canvas
@@ -410,10 +421,15 @@ const scoreLabel: React.CSSProperties = {
   fontVariantNumeric: 'tabular-nums',
 };
 
-const highLabel: React.CSSProperties = {
+const highBtn: React.CSSProperties = {
   fontSize: 13,
   color: 'var(--text-muted)',
   fontVariantNumeric: 'tabular-nums',
+  background: 'none',
+  border: 'none',
+  cursor: 'pointer',
+  padding: '2px 4px',
+  borderRadius: 4,
 };
 
 const canvasStyle: React.CSSProperties = {
