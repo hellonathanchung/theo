@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { Preset } from '../types.ts';
 import type { useContractions } from '../hooks/useContractions.ts';
 import { DisclaimerModal } from './DisclaimerModal.tsx';
+import { clearAllData } from '../utils/storage.ts';
 
 interface Props {
   app: ReturnType<typeof useContractions>;
@@ -33,6 +34,7 @@ const PRESETS: { id: Preset; label: string; shortDesc: string; longDesc: string;
 export function SettingsScreen({ app }: Props) {
   const { settings, updateSettings } = app;
   const [showDisclaimer, setShowDisclaimer] = useState(false);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   const selectPreset = (p: typeof PRESETS[number]) => {
     if (p.id === 'custom') {
@@ -172,9 +174,53 @@ export function SettingsScreen({ app }: Props) {
         </button>
       </div>
 
+      {/* Data management */}
+      <div style={{ ...sectionLabel, marginTop: 24 }}>DATA</div>
+      <div style={supportSection}>
+        <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 12, lineHeight: 1.5 }}>
+          Remove all contractions, sessions, settings, and game scores from this device.
+        </div>
+        <button
+          onClick={() => setShowClearConfirm(true)}
+          style={clearBtn}
+        >
+          Clear All Data
+        </button>
+      </div>
+
       <div style={version}>Theo v1.1.0</div>
 
       {showDisclaimer && <DisclaimerModal onClose={() => setShowDisclaimer(false)} />}
+
+      {/* Clear data confirmation modal */}
+      {showClearConfirm && (
+        <div style={modalOverlay}>
+          <div style={modalCard}>
+            <span style={{ fontSize: 28 }}>🗑️</span>
+            <h3 style={{ fontSize: 17, fontWeight: 600, color: 'var(--text-primary)', margin: '8px 0 4px' }}>
+              Clear all data?
+            </h3>
+            <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: 20 }}>
+              This will permanently delete all your contractions, sessions, settings, and game high scores. This cannot be undone.
+            </p>
+            <button
+              onClick={() => {
+                clearAllData();
+                window.location.reload();
+              }}
+              style={confirmDeleteBtn}
+            >
+              Yes, Clear Everything
+            </button>
+            <button
+              onClick={() => setShowClearConfirm(false)}
+              style={cancelBtn}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -342,6 +388,65 @@ const disclaimerLink: React.CSSProperties = {
   fontSize: 12,
   marginTop: 4,
   display: 'inline-block',
+};
+
+const clearBtn: React.CSSProperties = {
+  padding: '10px 24px',
+  background: 'var(--warm-beige)',
+  borderRadius: 12,
+  fontSize: 14,
+  fontWeight: 500,
+  color: '#D32F2F',
+  border: 'none',
+  cursor: 'pointer',
+  transition: 'background 0.2s',
+};
+
+const modalOverlay: React.CSSProperties = {
+  position: 'fixed',
+  inset: 0,
+  background: 'rgba(46, 59, 46, 0.4)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  zIndex: 100,
+  padding: 24,
+  animation: 'fadeInOverlay 0.3s ease',
+};
+
+const modalCard: React.CSSProperties = {
+  background: 'var(--cream)',
+  borderRadius: 20,
+  padding: '28px 24px',
+  maxWidth: 320,
+  width: '100%',
+  textAlign: 'center',
+  animation: 'fadeIn 0.3s ease',
+};
+
+const confirmDeleteBtn: React.CSSProperties = {
+  width: '100%',
+  padding: '14px',
+  borderRadius: 12,
+  background: '#D32F2F',
+  color: 'white',
+  fontSize: 15,
+  fontWeight: 600,
+  marginBottom: 10,
+  border: 'none',
+  cursor: 'pointer',
+};
+
+const cancelBtn: React.CSSProperties = {
+  width: '100%',
+  padding: '12px',
+  borderRadius: 12,
+  background: 'transparent',
+  color: 'var(--text-muted)',
+  fontSize: 14,
+  fontWeight: 500,
+  border: 'none',
+  cursor: 'pointer',
 };
 
 const version: React.CSSProperties = {

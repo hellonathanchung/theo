@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wsl.exe --list --verbose)",
+      "Bash(wsl.exe -d Ubuntu -- bash -c \"which node && node --version && which npm && npm --version && which git && git --version\")",
+      "Bash(wsl.exe -d Ubuntu -- bash -c \"cat ~/.bashrc | head -20\")"
+    ]
+  }
+}

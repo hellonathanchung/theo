@@ -88,3 +88,13 @@ export function saveOnboardingComplete(): void {
 export function hasExistingData(): boolean {
   return localStorage.getItem(SETTINGS_KEY) !== null;
 }
+
+export function clearAllData(): void {
+  localStorage.removeItem(CONTRACTIONS_KEY);
+  localStorage.removeItem(SETTINGS_KEY);
+  localStorage.removeItem(ACTIVE_KEY);
+  localStorage.removeItem(SESSIONS_KEY);
+  localStorage.removeItem(ONBOARDING_KEY);
+  localStorage.removeItem('theo_dino_high');
+  localStorage.removeItem('theo_bubble_high');
+}
