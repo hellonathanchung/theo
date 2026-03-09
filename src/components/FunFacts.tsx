@@ -36,6 +36,8 @@ const FACTS = [
 export function FunFacts() {
   const [index, setIndex] = useState(() => Math.floor(Math.random() * FACTS.length));
   const [fading, setFading] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+  const [shared, setShared] = useState(false);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
@@ -55,6 +57,29 @@ export function FunFacts() {
     }, 300);
   }, []);
 
+  const shareFact = useCallback(async () => {
+    const fact = FACTS[index];
+    const shareText = `${fact.emoji} ${fact.text}\n\n— from Theo, a contraction timer app`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ text: shareText });
+        return;
+      } catch {
+        // User cancelled or share failed, fall through to clipboard
+      }
+    }
+
+    // Fallback: copy to clipboard
+    try {
+      await navigator.clipboard.writeText(shareText);
+      setShared(true);
+      setTimeout(() => setShared(false), 2000);
+    } catch {
+      // Last resort: select trick
+    }
+  }, [index]);
+
   // Minimum swipe distance (in px)
   const minSwipeDistance = 50;
 
@@ -69,7 +94,7 @@ export function FunFacts() {
 
   const onTouchEnd = () => {
     if (!touchStart || !touchEnd) return;
-    
+
     const distance = touchStart - touchEnd;
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
@@ -81,48 +106,72 @@ export function FunFacts() {
     }
   };
 
-  // Auto-rotate every 12 seconds
+  // Auto-rotate every 12 seconds (only when expanded)
   useEffect(() => {
+    if (collapsed) return;
     const interval = setInterval(nextFact, 12000);
     return () => clearInterval(interval);
-  }, [nextFact]);
+  }, [nextFact, collapsed]);
 
   const fact = FACTS[index];
 
   return (
     <div style={container}>
-      <div style={headerRow}>
-        <button onClick={prevFact} style={prevBtn}>← Prev</button>
+      {/* Header — always visible, acts as toggle */}
+      <button onClick={() => setCollapsed(!collapsed)} style={headerRow}>
         <span style={headerLabel}>DID YOU KNOW?</span>
-        <button onClick={nextFact} style={nextBtn}>Next →</button>
-      </div>
-      <div
-        style={{
-          ...cardStyle,
-          opacity: fading ? 0 : 1,
-          transform: fading ? 'translateY(4px)' : 'translateY(0)',
-        }}
-        onTouchStart={onTouchStart}
-        onTouchMove={onTouchMove}
-        onTouchEnd={onTouchEnd}
-      >
-        <span style={emojiStyle}>{fact.emoji}</span>
-        <p style={textStyle}>{fact.text}</p>
-      </div>
-      <div style={dotsRow}>
-        {Array.from({ length: Math.min(5, FACTS.length) }, (_, i) => {
-          const dotIdx = (Math.floor(index / 5) * 5 + i) % FACTS.length;
-          return (
-            <div
-              key={i}
-              style={{
-                ...dotStyle,
-                background: dotIdx === index ? 'var(--terracotta)' : 'var(--warm-beige)',
-              }}
-            />
-          );
-        })}
-      </div>
+        <span style={{
+          ...chevron,
+          transform: collapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
+        }}>
+          ▾
+        </span>
+      </button>
+
+      {/* Collapsible content */}
+      {!collapsed && (
+        <div style={{ animation: 'fadeIn 0.25s ease' }}>
+          {/* Nav row */}
+          <div style={navRow}>
+            <button onClick={prevFact} style={navBtn}>← Prev</button>
+            <button onClick={shareFact} style={shareBtn}>
+              {shared ? '✓ Copied!' : '↗ Share'}
+            </button>
+            <button onClick={nextFact} style={navBtn}>Next →</button>
+          </div>
+
+          {/* Fact card */}
+          <div
+            style={{
+              ...cardStyle,
+              opacity: fading ? 0 : 1,
+              transform: fading ? 'translateY(4px)' : 'translateY(0)',
+            }}
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+          >
+            <span style={emojiStyle}>{fact.emoji}</span>
+            <p style={textStyle}>{fact.text}</p>
+          </div>
+
+          {/* Dots */}
+          <div style={dotsRow}>
+            {Array.from({ length: Math.min(5, FACTS.length) }, (_, i) => {
+              const dotIdx = (Math.floor(index / 5) * 5 + i) % FACTS.length;
+              return (
+                <div
+                  key={i}
+                  style={{
+                    ...dotStyle,
+                    background: dotIdx === index ? 'var(--terracotta)' : 'var(--warm-beige)',
+                  }}
+                />
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -136,6 +185,11 @@ const headerRow: React.CSSProperties = {
   justifyContent: 'space-between',
   alignItems: 'center',
   marginBottom: 8,
+  width: '100%',
+  padding: '6px 0',
+  background: 'none',
+  border: 'none',
+  cursor: 'pointer',
 };
 
 const headerLabel: React.CSSProperties = {
@@ -144,16 +198,33 @@ const headerLabel: React.CSSProperties = {
   letterSpacing: 1.5,
 };
 
-const nextBtn: React.CSSProperties = {
+const chevron: React.CSSProperties = {
+  fontSize: 14,
+  color: 'var(--text-muted)',
+  transition: 'transform 0.25s ease',
+};
+
+const navRow: React.CSSProperties = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: 8,
+};
+
+const navBtn: React.CSSProperties = {
   fontSize: 12,
   color: 'var(--terracotta)',
   fontWeight: 500,
 };
 
-const prevBtn: React.CSSProperties = {
+const shareBtn: React.CSSProperties = {
   fontSize: 12,
-  color: 'var(--terracotta)',
+  color: 'var(--text-secondary)',
   fontWeight: 500,
+  padding: '4px 12px',
+  borderRadius: 8,
+  background: 'var(--warm-beige)',
+  transition: 'all 0.2s ease',
 };
 
 const cardStyle: React.CSSProperties = {
