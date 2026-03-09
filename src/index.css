@@ -50,8 +50,32 @@ button {
   to { transform: translateY(0); opacity: 1; }
 }
 
-/* Pulsing animation on active button */
-@keyframes pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4); }
-  50% { box-shadow: 0 0 0 20px rgba(76, 175, 80, 0); }
+/* Gentle fade in with slight upward movement */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Breathing animation for active timer button */
+@keyframes breathe {
+  0%, 100% {
+    transform: scale(1.05);
+    box-shadow: 0 8px 32px rgba(76, 175, 80, 0.4);
+  }
+  50% {
+    transform: scale(1.08);
+    box-shadow: 0 12px 40px rgba(76, 175, 80, 0.5);
+  }
+}
+
+/* Slide up from bottom for bottom sheets */
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Fade in overlay backdrop */
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
