@@ -49,7 +49,7 @@ export function TimerScreen({ app }: Props) {
           {app.isActive
             ? formatDuration(elapsed)
             : lastContraction?.endTime
-              ? formatDuration(timeSinceLast)
+              ? (timeSinceLast >= 3600 ? formatInterval(timeSinceLast) : formatDuration(timeSinceLast))
               : '--:--'}
         </div>
       </div>
