@@ -147,6 +147,12 @@ export function useContractions() {
     setContractions((prev) => prev.filter((c) => c.id !== id));
   }, []);
 
+  const replaceContractions = useCallback((next: Contraction[]) => {
+    setContractions(next);
+    setAlertMessage(null);
+    setPendingIntensityId(null);
+  }, []);
+
   const dismissAlert = useCallback(() => {
     setAlertMessage(null);
   }, []);
@@ -182,6 +188,7 @@ export function useContractions() {
     dismissIntensityPrompt,
     updateContraction,
     deleteContraction,
+    replaceContractions,
     dismissAlert,
     updateSettings,
     getUrgencyState,

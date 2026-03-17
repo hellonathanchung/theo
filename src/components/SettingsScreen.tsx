@@ -3,6 +3,7 @@ import type { Preset } from '../types.ts';
 import type { useContractions } from '../hooks/useContractions.ts';
 import { DisclaimerModal } from './DisclaimerModal.tsx';
 import { clearAllData } from '../utils/storage.ts';
+import { encodePartnerLink } from '../utils/shareLink.ts';
 
 interface Props {
   app: ReturnType<typeof useContractions>;
@@ -35,6 +36,7 @@ export function SettingsScreen({ app }: Props) {
   const { settings, updateSettings } = app;
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [shareState, setShareState] = useState<'idle' | 'copied' | 'shared'>('idle');
 
   const selectPreset = (p: typeof PRESETS[number]) => {
     if (p.id === 'custom') {
@@ -142,6 +144,58 @@ export function SettingsScreen({ app }: Props) {
           onChange={(v) => updateSettings({ intensityEnabled: v })}
         />
       </SettingRow>
+
+      {/* Partner sharing */}
+      <div style={{ ...sectionLabel, marginTop: 24 }}>PARTNER</div>
+      <div style={supportSection}>
+        <div style={{ fontSize: 15, color: 'var(--text-primary)', marginBottom: 4 }}>
+          Share with your partner
+        </div>
+        <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 12, lineHeight: 1.5 }}>
+          Generate a link so your partner can see or merge your current contraction data. The link
+          expires in 6 hours.
+          {app.contractions.length === 0 && (
+            <span style={{ display: 'block', marginTop: 4, color: 'var(--terracotta)', fontStyle: 'italic' }}>
+              Start tracking first — no contractions recorded yet.
+            </span>
+          )}
+        </div>
+        <button
+          disabled={app.contractions.length === 0}
+          onClick={async () => {
+            const link = encodePartnerLink(app.contractions);
+            try {
+              if (navigator.share) {
+                await navigator.share({ title: 'Theo – contraction data', url: link });
+                setShareState('shared');
+              } else {
+                await navigator.clipboard.writeText(link);
+                setShareState('copied');
+              }
+            } catch {
+              // User cancelled share sheet or clipboard failed — try clipboard fallback
+              try {
+                await navigator.clipboard.writeText(link);
+                setShareState('copied');
+              } catch {
+                // Nothing we can do
+              }
+            }
+            setTimeout(() => setShareState('idle'), 3000);
+          }}
+          style={{
+            ...shareBtn,
+            opacity: app.contractions.length === 0 ? 0.4 : 1,
+            cursor: app.contractions.length === 0 ? 'default' : 'pointer',
+          }}
+        >
+          {shareState === 'copied'
+            ? '✓ Link copied!'
+            : shareState === 'shared'
+              ? '✓ Shared!'
+              : '🔗 Share partner link'}
+        </button>
+      </div>
 
       {/* Support */}
       <div style={{ ...sectionLabel, marginTop: 24 }}>SUPPORT</div>
@@ -360,6 +414,18 @@ const stepBtn: React.CSSProperties = {
 
 const supportSection: React.CSSProperties = {
   padding: '12px 20px',
+};
+
+const shareBtn: React.CSSProperties = {
+  display: 'inline-block',
+  padding: '10px 24px',
+  background: 'var(--warm-beige)',
+  borderRadius: 12,
+  fontSize: 14,
+  fontWeight: 500,
+  color: 'var(--terracotta)',
+  border: 'none',
+  transition: 'background 0.2s',
 };
 
 const donateBtn: React.CSSProperties = {

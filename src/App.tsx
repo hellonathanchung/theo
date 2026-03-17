@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import './index.css';
 import { useContractions } from './hooks/useContractions.ts';
+import { useMagicLink } from './hooks/useMagicLink.ts';
 import { TimerScreen } from './components/TimerScreen.tsx';
 import { HistoryScreen } from './components/HistoryScreen.tsx';
 import { SettingsScreen } from './components/SettingsScreen.tsx';
@@ -8,6 +9,7 @@ import { RelaxScreen } from './components/RelaxScreen.tsx';
 import { AlertBanner } from './components/AlertBanner.tsx';
 import { Onboarding } from './components/Onboarding.tsx';
 import { BackgroundLeaves } from './components/BackgroundLeaves.tsx';
+import { PartnerLinkModal } from './components/PartnerLinkModal.tsx';
 import { loadOnboardingComplete, saveOnboardingComplete } from './utils/storage.ts';
 import type { Preset } from './types.ts';
 
@@ -25,7 +27,9 @@ export function App() {
   const [tab, setTab] = useState<Tab>('timer');
   const [showOnboarding, setShowOnboarding] = useState(() => !loadOnboardingComplete());
   const [showStalePrompt, setShowStalePrompt] = useState(false);
+  const [showPartnerModal, setShowPartnerModal] = useState(true);
   const app = useContractions();
+  const magicLink = useMagicLink();
 
   // Request notification permission after onboarding
   useEffect(() => {
@@ -139,6 +143,24 @@ export function App() {
           );
         })}
       </nav>
+
+      {/* Partner magic link modal */}
+      {showPartnerModal && magicLink.status !== 'none' && (
+        <PartnerLinkModal
+          error={magicLink.status === 'error' ? magicLink.error : undefined}
+          payload={magicLink.status === 'ready' ? magicLink.payload : undefined}
+          localContractions={app.contractions}
+          onMerge={(merged) => {
+            app.replaceContractions(merged);
+            setShowPartnerModal(false);
+          }}
+          onReplace={(incoming) => {
+            app.replaceContractions(incoming);
+            setShowPartnerModal(false);
+          }}
+          onDismiss={() => setShowPartnerModal(false)}
+        />
+      )}
     </div>
   );
 }
